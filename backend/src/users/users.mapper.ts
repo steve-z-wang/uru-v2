@@ -1,0 +1,27 @@
+import { User as PrismaUser } from "generated/prisma";
+import { User } from "./users.model";
+import { UserDto } from "./dto/user.dto";
+
+export class UsersMapper {
+    static toDomain(prismaUser: PrismaUser): User {
+        return new User(
+            prismaUser.id, 
+            prismaUser.email,
+            prismaUser.firstName,
+            prismaUser.lastName,
+            prismaUser.createdAt,
+            prismaUser.updatedAt, 
+        );
+    }
+
+    static toResponseDto(user: User): UserDto {
+        return {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            createdAt: user.createdAt.getTime(),
+            updatedAt: user.updatedAt.getTime()
+        };
+    }
+}
