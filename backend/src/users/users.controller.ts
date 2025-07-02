@@ -18,7 +18,6 @@ export class UsersController {
 	@HttpCode(HttpStatus.OK)
 	async getProfile(@AuthUserToken() authUserToken: AuthUserToken): Promise<UserDto> {
 		this.logger.log(`User ${authUserToken.userId} is fetching their profile`);
-
 		try {
 			const user = await this.usersService.findUserById(authUserToken.userId);
 			this.logger.log(`Successfully retrieved profile for user ${authUserToken.userId}`);

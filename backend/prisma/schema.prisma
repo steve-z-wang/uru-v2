@@ -15,28 +15,93 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  firstName     String?
-  lastName      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations 
-  passwordAuth  PasswordAuth?
+  passwordAuth      PasswordAuth?
+  canonicalListings CanonicalListing[]
 
   @@map("users")
 }
 
 model PasswordAuth {
-  id            String   @id @default(uuid())
-  passwordHash  String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(uuid())
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relation to User
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_auths")
 }
+
+model CanonicalListing {
+  id        String        @id @default(uuid())
+  status    ListingStatus @default(DRAFT)
+  imageKeys String[] // S3 keys or URLs
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relation to User 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // platformListings PlatformListing[]
+
+  // User-Entered info 
+  size          String? // e.g., "S"
+  condition     String? // e.g., "new", "good", "fair"
+  material      String? // e.g., "denim"
+  gender        String? // "men" | "women" | "unisex"
+  brand         String? // e.g., "Levi's"
+  measurements  Json? // optional: chest, length, etc.
+  originalPrice Float? // optional: for calculating discount
+
+  // AI generated
+  title       String? // AI-generated or user-edited
+  description String? // AI-generated or user-edited
+  tags        String[] // clean tags like ["vintage", "y2k"]
+  category    String? // e.g., "Bottoms"
+  subcategory String? // e.g., "Mini Skirts"
+  color       String? // e.g., "blue"
+  price         Float? 
+
+  @@map("canonical_listings")
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ListingStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+// model PlatformListing {
+//   id                 String   @id @default(uuid())
+//   canonicalListingId String
+//   platform           String   // e.g., "depop", "poshmark"
+//   remoteId           String?  // e.g., external platform's ID
+//   status             String   // e.g., "draft", "published", "failed"
+//   payload            Json     // the final transformed DTO
+//   createdAt          DateTime @default(now())
+//   updatedAt          DateTime @updatedAt
+// 
+//   canonicalListing CanonicalListing @relation(fields: [canonicalListingId], references: [id])
+// 
+//   @@map("platform_listings")
+// }
