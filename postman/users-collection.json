@@ -1,0 +1,69 @@
+{
+  "info": {
+    "_postman_id": "uru-users-collection",
+    "name": "URU Users API",
+    "description": "User management endpoints for URU v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get My Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/users/me",
+          "host": ["{{BASE_URL}}"],
+          "path": ["users", "me"]
+        }
+      }
+    },
+    {
+      "name": "Update My Profile",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"newemail@example.com\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/users/me",
+          "host": ["{{BASE_URL}}"],
+          "path": ["users", "me"]
+        }
+      }
+    },
+    {
+      "name": "Delete My Account",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/users/me",
+          "host": ["{{BASE_URL}}"],
+          "path": ["users", "me"]
+        }
+      }
+    }
+  ]
+}

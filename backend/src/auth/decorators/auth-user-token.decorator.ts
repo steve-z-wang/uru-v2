@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
 
 export interface AuthUserToken {
 	userId: string;
@@ -8,7 +8,7 @@ export interface AuthUserToken {
 export const AuthUserToken = createParamDecorator(
 	(data: unknown, ctx: ExecutionContext): AuthUserToken => {
 		const request = ctx.switchToHttp().getRequest();
-		const jwtPayload = request.user; // JWT payload with sub, email, etc.
+		const jwtPayload = request.user;
 
 		return {
 			userId: jwtPayload.sub,

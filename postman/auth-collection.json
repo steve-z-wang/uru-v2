@@ -1,0 +1,114 @@
+{
+  "info": {
+    "_postman_id": "uru-auth-collection",
+    "name": "URU Auth API",
+    "description": "Authentication endpoints for URU v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response body",
+              "const response = pm.response.json();",
+              "",
+              "// Check if registration was successful",
+              "if (pm.response.code === 200 || pm.response.code === 201) {",
+              "    // Save access token to environment variable",
+              "    pm.environment.set('ACCESS_TOKEN', response.accessToken);",
+              "    ",
+              "    // Log success",
+              "    console.log('Access token saved to environment');",
+              "    ",
+              "    // Add test to verify token was saved",
+              "    pm.test('Access token saved', function () {",
+              "        pm.expect(pm.environment.get('ACCESS_TOKEN')).to.not.be.empty;",
+              "    });",
+              "}",
+              "",
+              "// Test response structure",
+              "pm.test('Response has access token', function () {",
+              "    pm.expect(response).to.have.property('accessToken');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": ["{{BASE_URL}}"],
+          "path": ["auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response body",
+              "const response = pm.response.json();",
+              "",
+              "// Check if login was successful",
+              "if (pm.response.code === 200 || pm.response.code === 201) {",
+              "    // Save access token to environment variable",
+              "    pm.environment.set('ACCESS_TOKEN', response.accessToken);",
+              "    ",
+              "    // Log success",
+              "    console.log('Access token saved to environment');",
+              "    ",
+              "    // Add test to verify token was saved",
+              "    pm.test('Access token saved', function () {",
+              "        pm.expect(pm.environment.get('ACCESS_TOKEN')).to.not.be.empty;",
+              "    });",
+              "}",
+              "",
+              "// Test response structure",
+              "pm.test('Response has access token', function () {",
+              "    pm.expect(response).to.have.property('accessToken');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": ["{{BASE_URL}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    }
+  ]
+}

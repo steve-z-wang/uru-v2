@@ -9,8 +9,6 @@ export class UsersMapper {
             prismaUser.email,
             prismaUser.firstName,
             prismaUser.lastName,
-            prismaUser.createdAt,
-            prismaUser.updatedAt, 
         );
     }
 
@@ -20,8 +18,6 @@ export class UsersMapper {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            createdAt: user.createdAt.getTime(),
-            updatedAt: user.updatedAt.getTime()
         };
     }
 }

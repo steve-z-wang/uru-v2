@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, Delete, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Delete, UseGuards, Logger, HttpCode, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,6 +15,7 @@ export class UsersController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get('me')
+	@HttpCode(HttpStatus.OK)
 	async getProfile(@AuthUserToken() authUserToken: AuthUserToken): Promise<UserDto> {
 		this.logger.log(`User ${authUserToken.userId} is fetching their profile`);
 
@@ -31,6 +32,7 @@ export class UsersController {
 
 	@UseGuards(JwtAuthGuard)
 	@Patch('me')
+	@HttpCode(HttpStatus.OK)
 	async update(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Body() updateUserDto: UpdateUserDto,
@@ -57,6 +59,7 @@ export class UsersController {
 
 	@UseGuards(JwtAuthGuard)
 	@Delete('me')
+	@HttpCode(HttpStatus.NO_CONTENT)
 	async remove(@AuthUserToken() authUserToken: AuthUserToken): Promise<void> {
 		this.logger.log(`User ${authUserToken.userId} is deleting their account`);
 		try {

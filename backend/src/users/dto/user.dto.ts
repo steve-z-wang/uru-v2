@@ -14,10 +14,4 @@ export class UserDto {
 	@IsOptional()
 	@IsString()
 	lastName?: string | null;
-
-	@IsNumber()
-	createdAt: number; // use unix timestamp
-
-	@IsNumber()
-	updatedAt: number; // use unix timestamp
 }
