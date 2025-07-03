@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Express } from 'express';
+import { AppConfigService } from '../config/config.service';
 
 @Injectable()
 export class FilesService {
 	private readonly logger = new Logger(FilesService.name);
+
+	constructor(private appConfig: AppConfigService) {}
 
 	async uploadFile(userId: string, file: Express.Multer.File) {
 		// For now, we'll just return file metadata
@@ -21,6 +24,13 @@ export class FilesService {
 		this.logger.log(`File metadata created: ${JSON.stringify(fileData)}`);
 
 		// TODO: Save to database and upload to storage
+		
+		// Example: Use stage to determine storage location
+		if (this.appConfig.isDevelopment) {
+			this.logger.log('DEV mode: Would save to local storage');
+		} else if (this.appConfig.isProduction) {
+			this.logger.log('PROD mode: Would upload to S3');
+		}
 
 		return fileData;
 	}
