@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Listing } from './listings.model';
 import { ListingsMapper } from './listings.mapper';
-import { ListingInputDto } from './dto/input/listing-input.dto';
+import { CreateListingData, UpdateListingData } from './interfaces/listing-data.interface';
 
 @Injectable()
 export class ListingsService {
@@ -46,25 +46,30 @@ export class ListingsService {
 	 * Mutation *
 	 ************/
 
-	async createListing(userId: string, input: ListingInputDto): Promise<Listing> {
+	async createListing(userId: string, data: CreateListingData): Promise<Listing> {
 		const listing = await this.prismaService.canonicalListing.create({
 			data: {
 				userId: userId,
-				...input,
+				...data,
 			},
 		});
 
 		return ListingsMapper.toDomain(listing);
 	}
 
-	async updateListing(userId: string, id: string, input: ListingInputDto): Promise<Listing> {
+	async updateListing(userId: string, id: string, data: UpdateListingData): Promise<Listing> {
+		// Filter out undefined values for partial updates
+		const updateData = Object.fromEntries(
+			Object.entries(data).filter(([_, value]) => value !== undefined)
+		);
+
 		try {
 			const listing = await this.prismaService.canonicalListing.update({
 				where: {
 					id: id,
 					userId: userId, // This ensures ownership check
 				},
-				data: input,
+				data: updateData,
 			});
 			return ListingsMapper.toDomain(listing);
 		} catch (error) {

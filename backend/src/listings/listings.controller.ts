@@ -135,7 +135,7 @@ export class ListingsController {
 		try {
 			const listing = await this.listingsService.createListing(
 				authUserToken.userId,
-				createListingDto.listing,
+				createListingDto,
 			);
 			this.logger.log(
 				`Successfully created listing ${listing.getProps().id} for user ${authUserToken.userId}`,
@@ -165,7 +165,7 @@ export class ListingsController {
 			const listing = await this.listingsService.updateListing(
 				authUserToken.userId,
 				id,
-				updateListingDto.listing,
+				updateListingDto,
 			);
 			this.logger.log(`Successfully updated listing ${id} for user ${authUserToken.userId}`);
 			return ListingsMapper.toDto(listing);
