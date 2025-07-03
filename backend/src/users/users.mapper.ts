@@ -1,6 +1,6 @@
 import { User as PrismaUser } from "generated/prisma";
 import { User } from "./users.model";
-import { UserDto } from "./dto/user.dto";
+import { UserDto } from "./dto/output/user.dto";
 
 export class UsersMapper {
     static toDomain(prismaUser: PrismaUser): User {

@@ -8,7 +8,6 @@ import { UsersMapper } from './users.mapper';
 export class UsersService {
 	constructor(private prismaService: PrismaService) {}
 
-
   /*********
    * Query * 
    *********/
