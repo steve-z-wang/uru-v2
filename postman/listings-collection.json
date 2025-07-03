@@ -1,0 +1,182 @@
+{
+  "info": {
+    "_postman_id": "uru-listings-collection",
+    "name": "URU Listings API",
+    "description": "Listings management endpoints for URU v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{ACCESS_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Get User Listings",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{BASE_URL}}/listings?page=1&limit=10",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Listing by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{BASE_URL}}/listings/:id",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{LISTING_ID}}",
+              "description": "The ID of the listing to retrieve"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Listing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Save the listing ID for use in other requests",
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    if (response.id) {",
+              "        pm.collectionVariables.set('LISTING_ID', response.id);",
+              "        console.log('Saved listing ID:', response.id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"listing\": {\n    \"imageKeys\": [\"image1.jpg\", \"image2.jpg\"],\n    \"title\": \"Vintage Denim Jacket\",\n    \"description\": \"Classic vintage denim jacket in great condition\",\n    \"category\": \"Outerwear\",\n    \"subcategory\": \"Jackets\",\n    \"size\": \"M\",\n    \"condition\": \"GOOD\",\n    \"material\": \"Denim\",\n    \"gender\": \"Unisex\",\n    \"brand\": \"Levi's\",\n    \"color\": \"Blue\",\n    \"price\": 75,\n    \"originalPrice\": 150,\n    \"tags\": [\"vintage\", \"denim\", \"jacket\"]\n  }\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/listings",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings"]
+        }
+      }
+    },
+    {
+      "name": "Update Listing",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"listing\": {\n    \"imageKeys\": [\"image1.jpg\", \"image2.jpg\", \"image3.jpg\"],\n    \"title\": \"Vintage Denim Jacket - Updated\",\n    \"description\": \"Classic vintage denim jacket in excellent condition\",\n    \"price\": 65\n  }\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/listings/:id",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{LISTING_ID}}",
+              "description": "The ID of the listing to update"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Generate AI Content",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "{{BASE_URL}}/listings/:id/ai-generate",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings", ":id", "ai-generate"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{LISTING_ID}}",
+              "description": "The ID of the listing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Publish Listing",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "{{BASE_URL}}/listings/:id/publish",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings", ":id", "publish"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{LISTING_ID}}",
+              "description": "The ID of the listing to publish"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Archive Listing",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "{{BASE_URL}}/listings/:id/archive",
+          "host": ["{{BASE_URL}}"],
+          "path": ["listings", ":id", "archive"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{LISTING_ID}}",
+              "description": "The ID of the listing to archive"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

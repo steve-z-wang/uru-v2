@@ -8,13 +8,24 @@ import {
 	Param,
 	HttpCode,
 	HttpStatus,
+	Get,
+	Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+	ApiTags,
+	ApiOperation,
+	ApiResponse,
+	ApiBearerAuth,
+	ApiParam,
+	ApiQuery,
+} from '@nestjs/swagger';
 import { AuthUserToken } from 'src/auth/decorators/auth-user-token.decorator';
-import { ListingDto } from './dto/listing.dto';
+import { ListingDto } from './dto/output/listing.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CreateListingDto } from './dto/create-listing.dto';
-import { UpdateListingDto } from './dto/update-listing.dto';
+import { CreateListingDto } from './dto/input/create-listing.dto';
+import { UpdateListingDto } from './dto/input/update-listing.dto';
+import { ListingsService } from './listings.service';
+import { ListingsMapper } from './listings.mapper';
 
 @ApiTags('listings')
 @ApiBearerAuth()
@@ -22,23 +33,118 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 export class ListingsController {
 	private readonly logger = new Logger(ListingsController.name);
 
-	constructor() {}
+	constructor(private readonly listingsService: ListingsService) {}
+
+	/*********
+	 * Query *
+	 *********/
+
+	@UseGuards(JwtAuthGuard)
+	@Get(':id')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Get listing by ID',
+		description: 'Get a single listing owned by the authenticated user',
+	})
+	@ApiParam({ name: 'id', description: 'Listing ID' })
+	async getListingById(
+		@AuthUserToken() authUserToken: AuthUserToken,
+		@Param('id') id: string,
+	): Promise<ListingDto> {
+		this.logger.log(`Getting listing ${id} for user ${authUserToken.userId}`);
+		try {
+			const listing = await this.listingsService.getListingById(authUserToken.userId, id);
+			this.logger.log(`Successfully retrieved listing ${id} for user ${authUserToken.userId}`);
+			return ListingsMapper.toDto(listing);
+		} catch (error) {
+			this.logger.error(
+				`Failed to retrieve listing ${id} for user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get()
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Get user listings',
+		description: 'Get all listings owned by the authenticated user with optional filtering',
+	})
+	@ApiQuery({
+		name: 'page',
+		required: false,
+		description: 'Page number for pagination',
+		type: Number,
+		example: 1,
+	})
+	@ApiQuery({
+		name: 'limit',
+		required: false,
+		description: 'Number of items per page',
+		type: Number,
+		example: 10,
+	})
+	async getUserListings(
+		@AuthUserToken() authUserToken: AuthUserToken,
+		@Query('page') page?: string,
+		@Query('limit') limit?: string,
+	): Promise<ListingDto[]> {
+		const pageNumber = parseInt(page || '1', 10);
+		const limitNumber = parseInt(limit || '10', 10);
+
+		this.logger.log(
+			`Getting listings for user ${authUserToken.userId} - page: ${pageNumber}, limit: ${limitNumber}`,
+		);
+		try {
+			const listings = await this.listingsService.getUserListings(
+				authUserToken.userId,
+				pageNumber,
+				limitNumber,
+			);
+			this.logger.log(
+				`Successfully retrieved ${listings.length} listings for user ${authUserToken.userId}`,
+			);
+			return listings.map((listing) => ListingsMapper.toDto(listing));
+		} catch (error) {
+			this.logger.error(
+				`Failed to retrieve listings for user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
+	}
+
+	/************
+	 * Mutation *
+	 ************/
 
 	@UseGuards(JwtAuthGuard)
 	@Post()
 	@HttpCode(HttpStatus.CREATED)
 	@ApiOperation({
 		summary: 'Create a new listing',
-		description: 'Create a new property listing for the authenticated user',
+		description: 'Create a new clothing item listing for the authenticated user',
 	})
-	@ApiResponse({ status: 201, description: 'Listing successfully created', type: ListingDto })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	async createListing(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Body() createListingDto: CreateListingDto,
 	): Promise<ListingDto> {
-		// Implementation needed
-		throw new Error('Method not implemented');
+		this.logger.log(`Creating new listing for user ${authUserToken.userId}`);
+		try {
+			const listing = await this.listingsService.createListing(
+				authUserToken.userId,
+				createListingDto.listing,
+			);
+			this.logger.log(
+				`Successfully created listing ${listing.getProps().id} for user ${authUserToken.userId}`,
+			);
+			return ListingsMapper.toDto(listing);
+		} catch (error) {
+			this.logger.error(`Failed to create listing for user ${authUserToken.userId}`, error.stack);
+			throw error;
+		}
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -49,16 +155,27 @@ export class ListingsController {
 		description: 'Update an existing listing owned by the authenticated user',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	@ApiResponse({ status: 200, description: 'Listing successfully updated', type: ListingDto })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 404, description: 'Listing not found' })
 	async updateListing(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Param('id') id: string,
 		@Body() updateListingDto: UpdateListingDto,
 	): Promise<ListingDto> {
-		// Implementation needed
-		throw new Error('Method not implemented');
+		this.logger.log(`Updating listing ${id} for user ${authUserToken.userId}`);
+		try {
+			const listing = await this.listingsService.updateListing(
+				authUserToken.userId,
+				id,
+				updateListingDto.listing,
+			);
+			this.logger.log(`Successfully updated listing ${id} for user ${authUserToken.userId}`);
+			return ListingsMapper.toDto(listing);
+		} catch (error) {
+			this.logger.error(
+				`Failed to update listing ${id} for user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -69,15 +186,21 @@ export class ListingsController {
 		description: 'Generate AI-powered content for the listing',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	@ApiResponse({ status: 200, description: 'AI content generated successfully' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 404, description: 'Listing not found' })
 	async generateAIContent(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Param('id') id: string,
 	): Promise<void> {
-		// Implementation needed
-		throw new Error('Method not implemented');
+		this.logger.log(`Generating AI content for listing ${id} by user ${authUserToken.userId}`);
+		try {
+			// Implementation needed
+			throw new Error('Method not implemented');
+		} catch (error) {
+			this.logger.error(
+				`Failed to generate AI content for listing ${id} by user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -88,15 +211,21 @@ export class ListingsController {
 		description: 'Publish a draft listing to make it publicly visible',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	@ApiResponse({ status: 200, description: 'Listing published successfully' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 404, description: 'Listing not found' })
 	async publishListing(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Param('id') id: string,
 	): Promise<void> {
-		// Implementation needed
-		throw new Error('Method not implemented');
+		this.logger.log(`Publishing listing ${id} for user ${authUserToken.userId}`);
+		try {
+			// Implementation needed
+			throw new Error('Method not implemented');
+		} catch (error) {
+			this.logger.error(
+				`Failed to publish listing ${id} for user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -107,14 +236,20 @@ export class ListingsController {
 		description: 'Archive a published listing to hide it from public view',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	@ApiResponse({ status: 200, description: 'Listing archived successfully' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 404, description: 'Listing not found' })
 	async archiveListing(
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Param('id') id: string,
 	): Promise<void> {
-		// Implementation needed
-		throw new Error('Method not implemented');
+		this.logger.log(`Archiving listing ${id} for user ${authUserToken.userId}`);
+		try {
+			// Implementation needed
+			throw new Error('Method not implemented');
+		} catch (error) {
+			this.logger.error(
+				`Failed to archive listing ${id} for user ${authUserToken.userId}`,
+				error.stack,
+			);
+			throw error;
+		}
 	}
 }

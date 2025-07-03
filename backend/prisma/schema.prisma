@@ -43,35 +43,38 @@ model PasswordAuth {
 }
 
 model CanonicalListing {
+
+  // Core fields
   id        String        @id @default(uuid())
   status    ListingStatus @default(DRAFT)
   imageKeys String[] // S3 keys or URLs
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relation to User 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // platformListings PlatformListing[]
+  // Basic info
+  title       String? // AI-generated or user-edited
+  description String? // AI-generated or user-edited
+  category    String? // e.g., "Bottoms"
+  subcategory String? // e.g., "Mini Skirts"
 
-  // User-Entered info 
+  // Physical attributes
   size          String? // e.g., "S"
-  condition     String? // e.g., "new", "good", "fair"
+  condition     ListingCondition? 
   material      String? // e.g., "denim"
   gender        String? // "men" | "women" | "unisex"
   brand         String? // e.g., "Levi's"
-  measurements  Json? // optional: chest, length, etc.
+  color       String? // e.g., "blue"
+
+  // Pricing
+  price         Float? 
   originalPrice Float? // optional: for calculating discount
 
-  // AI generated
-  title       String? // AI-generated or user-edited
-  description String? // AI-generated or user-edited
+  // Metadata
   tags        String[] // clean tags like ["vintage", "y2k"]
-  category    String? // e.g., "Bottoms"
-  subcategory String? // e.g., "Mini Skirts"
-  color       String? // e.g., "blue"
-  price         Float? 
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("canonical_listings")
 }
