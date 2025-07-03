@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Listing } from './listings.model';
 import { ListingsMapper } from './listings.mapper';
-import { CreateListingData, UpdateListingData } from './interfaces/listing-data.interface';
+import { CreateListingData, UpdateListingData } from './listings.service.interface';
 
 @Injectable()
 export class ListingsService {

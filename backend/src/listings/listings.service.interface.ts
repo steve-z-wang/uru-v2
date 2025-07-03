@@ -1,4 +1,4 @@
-import { ListingCondition } from '../listings.model';
+import { ListingCondition } from './listings.model';
 
 export interface ListingData {
     // Required for create, optional for update

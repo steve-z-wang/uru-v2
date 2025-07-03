@@ -1,7 +1,7 @@
 import { IsString, IsOptional, IsNumber, IsArray, IsEnum, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ListingCondition } from '../../listings.model';
-import { CreateListingData } from '../../interfaces/listing-data.interface';
+import { CreateListingData } from '../../listings.service.interface';
 
 export class CreateListingDto implements CreateListingData {
 	@IsArray()
