@@ -1,0 +1,92 @@
+{
+  "info": {
+    "name": "Files API",
+    "description": "File upload and management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Upload File",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "",
+              "description": "File to upload"
+            },
+            {
+              "key": "category",
+              "value": "media",
+              "type": "text",
+              "description": "File category (media or document)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/files",
+          "host": ["{{base_url}}"],
+          "path": ["files"]
+        },
+        "description": "Upload a file with category"
+      },
+      "response": []
+    },
+    {
+      "name": "Get File",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/files/:id",
+          "host": ["{{base_url}}"],
+          "path": ["files", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "File ID"
+            }
+          ]
+        },
+        "description": "Download a file by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete File",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/files/:id",
+          "host": ["{{base_url}}"],
+          "path": ["files", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "File ID"
+            }
+          ]
+        },
+        "description": "Delete a file by ID"
+      },
+      "response": []
+    }
+  ]
+}
