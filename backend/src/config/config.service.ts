@@ -50,4 +50,18 @@ export class AppConfigService {
 	getConfig(): EnvironmentConfig {
 		return this.config;
 	}
+
+	// OpenAI Configuration
+	getOpenAIApiKey(): string {
+		return this.config.openaiApiKey || '';
+	}
+
+	// S3 Configuration
+	getS3BucketName(): string {
+		return this.config.s3BucketName || '';
+	}
+
+	getS3Region(): string {
+		return this.config.s3Region || 'us-east-1';
+	}
 }

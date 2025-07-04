@@ -96,6 +96,12 @@ export class FilesService implements FilesServiceInterface {
     this.logger.log(`File ${fileId} deleted successfully`);
   }
 
+  async getFileUrl(fileKey: string): Promise<string> {
+    // In a real implementation, this might validate the file exists
+    // For now, just generate the URL based on the key
+    return this.fileManager.getFileUrl(fileKey);
+  }
+
   private generateFileId(): string {
     return crypto.randomBytes(16).toString('hex');
   }

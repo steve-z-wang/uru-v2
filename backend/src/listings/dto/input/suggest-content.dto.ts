@@ -1,15 +1,45 @@
-import { IsString, IsOptional, IsNumber, IsArray, IsEnum, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsArray, IsEnum, Min, ArrayMinSize } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ListingCondition } from '../../listings.model';
 
-export class CreateListingDto {
+export class SuggestContentDto {
 	@IsArray()
+	@ArrayMinSize(1)
 	@IsString({ each: true })
 	@ApiProperty({ 
-		description: 'S3 image keys for the listing',
+		description: 'S3 image keys for AI analysis (required)',
 		example: ['image1.jpg', 'image2.jpg']
 	})
 	imageKeys: string[];
+
+	@IsString()
+	@ApiProperty({ 
+		description: 'Item category (required for targeted suggestions)',
+		example: 'Outerwear'
+	})
+	category: string;
+
+	@IsString()
+	@ApiProperty({ 
+		description: 'Size of the item (required)',
+		example: 'M'
+	})
+	size: string;
+
+	@IsEnum(ListingCondition)
+	@ApiProperty({ 
+		description: 'Condition of the item (required)',
+		enum: ListingCondition,
+		example: ListingCondition.GOOD
+	})
+	condition: ListingCondition;
+
+	@IsString()
+	@ApiProperty({ 
+		description: 'Brand name (required)',
+		example: 'Levi\'s'
+	})
+	brand: string;
 
 	@IsOptional()
 	@IsString()
@@ -30,34 +60,10 @@ export class CreateListingDto {
 	@IsOptional()
 	@IsString()
 	@ApiPropertyOptional({ 
-		description: 'Item category',
-		example: 'Outerwear'
-	})
-	category?: string;
-
-	@IsOptional()
-	@IsString()
-	@ApiPropertyOptional({ 
 		description: 'Item subcategory',
 		example: 'Jackets'
 	})
 	subcategory?: string;
-
-	@IsOptional()
-	@IsString()
-	@ApiPropertyOptional({ 
-		description: 'Size of the item',
-		example: 'M'
-	})
-	size?: string;
-
-	@IsOptional()
-	@IsEnum(ListingCondition)
-	@ApiPropertyOptional({ 
-		description: 'Condition of the item',
-		enum: ListingCondition
-	})
-	condition?: ListingCondition;
 
 	@IsOptional()
 	@IsString()
@@ -74,14 +80,6 @@ export class CreateListingDto {
 		example: 'unisex'
 	})
 	gender?: string;
-
-	@IsOptional()
-	@IsString()
-	@ApiPropertyOptional({ 
-		description: 'Brand name',
-		example: 'Levi\'s'
-	})
-	brand?: string;
 
 	@IsOptional()
 	@IsString()

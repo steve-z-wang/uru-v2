@@ -12,6 +12,9 @@ export interface EnvironmentConfig {
 	jwtSecret: string;
 	jwtExpiresIn: string;
 	databaseUrl: string;
+	openaiApiKey?: string;
+	s3BucketName?: string;
+	s3Region?: string;
 }
 
 export default registerAs('environment', (): EnvironmentConfig => {
@@ -40,5 +43,8 @@ export default registerAs('environment', (): EnvironmentConfig => {
 		jwtSecret: process.env.JWT_SECRET!,
 		jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 		databaseUrl: process.env.DATABASE_URL!,
+		openaiApiKey: process.env.OPENAI_API_KEY,
+		s3BucketName: process.env.S3_BUCKET_NAME,
+		s3Region: process.env.S3_REGION,
 	};
 });

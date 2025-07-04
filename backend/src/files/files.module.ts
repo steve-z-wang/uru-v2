@@ -14,5 +14,6 @@ import { AppConfigModule } from '../config/config.module';
       useClass: LocalFileManager,
     },
   ],
+  exports: [FilesService],
 })
 export class FilesModule {}

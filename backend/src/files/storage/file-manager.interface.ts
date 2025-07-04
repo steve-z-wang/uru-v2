@@ -17,4 +17,6 @@ export interface FileManagerInterface {
   getFile(path: string): Promise<Buffer>;
 
   fileExists(path: string): Promise<boolean>;
+
+  getFileUrl(path: string): string;
 }

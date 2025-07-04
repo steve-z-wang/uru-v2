@@ -24,6 +24,8 @@ import { ListingDto } from './dto/output/listing.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateListingDto } from './dto/input/create-listing.dto';
 import { UpdateListingDto } from './dto/input/update-listing.dto';
+import { SuggestContentDto } from './dto/input/suggest-content.dto';
+import { ContentSuggestionDto } from './dto/output/content-suggestion.dto';
 import { ListingsService } from './listings.service';
 import { ListingsMapper } from './listings.mapper';
 
@@ -143,6 +145,36 @@ export class ListingsController {
 			return ListingsMapper.toDto(listing);
 		} catch (error) {
 			this.logger.error(`Failed to create listing for user ${authUserToken.userId}`, error.stack);
+			throw error;
+		}
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('suggest-content')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Generate AI content suggestions',
+		description: 'Generate AI-powered content suggestions for a listing based on images and provided information',
+	})
+	@ApiResponse({
+		status: 200,
+		description: 'Content suggestions generated successfully',
+		type: ContentSuggestionDto,
+	})
+	async suggestContent(
+		@AuthUserToken() authUserToken: AuthUserToken,
+		@Body() suggestContentDto: SuggestContentDto,
+	): Promise<ContentSuggestionDto> {
+		this.logger.log(`Generating content suggestions for user ${authUserToken.userId}`);
+		try {
+			const suggestions = await this.listingsService.suggestContent(suggestContentDto);
+			this.logger.log(`Successfully generated content suggestions for user ${authUserToken.userId}`);
+			return suggestions;
+		} catch (error) {
+			this.logger.error(
+				`Failed to generate content suggestions for user ${authUserToken.userId}`,
+				error.stack,
+			);
 			throw error;
 		}
 	}

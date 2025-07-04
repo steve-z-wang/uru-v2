@@ -64,4 +64,17 @@ export class LocalFileManager implements FileManagerInterface {
       return false;
     }
   }
+
+  getFileUrl(filePath: string): string {
+    if (this.appConfig.isProduction) {
+      // Production: Return S3 URL
+      const bucketName = this.appConfig.getS3BucketName();
+      const region = this.appConfig.getS3Region();
+      return `https://${bucketName}.s3.${region}.amazonaws.com/${filePath}`;
+    } else {
+      // Development/Staging: Return local server URL
+      const port = this.appConfig.port;
+      return `http://localhost:${port}/files/${encodeURIComponent(filePath)}`;
+    }
+  }
 }
