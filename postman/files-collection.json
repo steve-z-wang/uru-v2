@@ -1,7 +1,8 @@
 {
   "info": {
-    "name": "Files API",
-    "description": "File upload and management endpoints",
+    "_postman_id": "uru-files-collection",
+    "name": "URU Files API",
+    "description": "File upload and management endpoints for URU v2",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -9,7 +10,7 @@
     "bearer": [
       {
         "key": "token",
-        "value": "{{access_token}}",
+        "value": "{{ACCESS_TOKEN}}",
         "type": "string"
       }
     ]
@@ -17,6 +18,35 @@
   "item": [
     {
       "name": "Upload File",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Parse response body",
+              "const response = pm.response.json();",
+              "",
+              "// Check if upload was successful",
+              "if (pm.response.code === 201) {",
+              "    // Save file ID for use in other requests",
+              "    if (response.id) {",
+              "        pm.collectionVariables.set('FILE_ID', response.id);",
+              "        console.log('Saved file ID:', response.id);",
+              "    }",
+              "    ",
+              "    // Test response structure",
+              "    pm.test('Response has file information', function () {",
+              "        pm.expect(response).to.have.property('id');",
+              "        pm.expect(response).to.have.property('filename');",
+              "        pm.expect(response).to.have.property('size');",
+              "        pm.expect(response).to.have.property('category');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -38,13 +68,12 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/files",
-          "host": ["{{base_url}}"],
+          "raw": "{{BASE_URL}}/files",
+          "host": ["{{BASE_URL}}"],
           "path": ["files"]
         },
-        "description": "Upload a file with category"
-      },
-      "response": []
+        "description": "Upload a file with category. The file will be associated with the authenticated user."
+      }
     },
     {
       "name": "Get File",
@@ -52,20 +81,19 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/files/:id",
-          "host": ["{{base_url}}"],
+          "raw": "{{BASE_URL}}/files/:id",
+          "host": ["{{BASE_URL}}"],
           "path": ["files", ":id"],
           "variable": [
             {
               "key": "id",
-              "value": "",
-              "description": "File ID"
+              "value": "{{FILE_ID}}",
+              "description": "The ID of the file to retrieve"
             }
           ]
         },
-        "description": "Download a file by ID"
-      },
-      "response": []
+        "description": "Download a file by ID. Returns the file content with appropriate headers."
+      }
     },
     {
       "name": "Delete File",
@@ -73,20 +101,19 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/files/:id",
-          "host": ["{{base_url}}"],
+          "raw": "{{BASE_URL}}/files/:id",
+          "host": ["{{BASE_URL}}"],
           "path": ["files", ":id"],
           "variable": [
             {
               "key": "id",
-              "value": "",
-              "description": "File ID"
+              "value": "{{FILE_ID}}",
+              "description": "The ID of the file to delete"
             }
           ]
         },
-        "description": "Delete a file by ID"
-      },
-      "response": []
+        "description": "Delete a file by ID. Only the file owner can delete their files."
+      }
     }
   ]
 }
