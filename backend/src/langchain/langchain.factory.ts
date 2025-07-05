@@ -20,6 +20,8 @@ export class LangChainFactory {
 		this.apiKey = this.configService.getOpenAIApiKey();
 		if (!this.apiKey) {
 			this.logger.warn('OpenAI API key not configured');
+		} else {
+			this.logger.log(`OpenAI API key loaded: ${this.apiKey.substring(0, 10)}...`);
 		}
 	}
 
@@ -28,7 +30,7 @@ export class LangChainFactory {
 	 */
 	createChatModel(config: LangChainConfig = {}): ChatOpenAI {
 		const {
-			model = 'gpt-4-turbo-preview',
+			model = 'gpt-4o-mini',
 			temperature = 0.7,
 			maxTokens = 1000,
 		} = config;
@@ -47,7 +49,7 @@ export class LangChainFactory {
 	createVisionModel(config: Omit<LangChainConfig, 'model'> = {}): ChatOpenAI {
 		return this.createChatModel({
 			...config,
-			model: 'gpt-4-vision-preview',
+			model: 'gpt-4o-mini', // Vision-capable model
 		});
 	}
 

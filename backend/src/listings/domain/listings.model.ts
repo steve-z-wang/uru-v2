@@ -79,4 +79,13 @@ export class Listing {
 		}
 		this.props.status = ListingStatus.ARCHIVED;
 	}
+
+	isOwnedBy(userId: string): boolean {
+		return this.props.userId === userId;
+	}
+
+	// Convenience getter for userId
+	get userId(): string {
+		return this.props.userId;
+	}
 }

@@ -1,107 +1,33 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Listing } from './listings.model';
-import { ListingsMapper } from './listings.mapper';
-import { CreateListingData, UpdateListingData } from './listings.service.interface';
+import { Injectable, Logger } from '@nestjs/common';
 import { LangChainFactory } from 'src/langchain/langchain.factory';
 import { FilesService } from 'src/files/files.service';
-import { SuggestContentDto } from './dto/input/suggest-content.dto';
-import { ContentSuggestionDto } from './dto/output/content-suggestion.dto';
+import { 
+	ListingAIService, 
+	ListingContentInput, 
+	ListingContentSuggestion 
+} from '../application/ports/listing-ai.service';
 
 @Injectable()
-export class ListingsService {
-	private readonly logger = new Logger(ListingsService.name);
+export class ListingAIServiceImpl implements ListingAIService {
+	private readonly logger = new Logger(ListingAIServiceImpl.name);
 
 	constructor(
-		private prismaService: PrismaService,
 		private langChainFactory: LangChainFactory,
 		private filesService: FilesService,
 	) {}
 
-	/*********
-	 * Query *
-	 *********/
-
-	async findListingById(userId: string, id: string): Promise<Listing | null> {
-		const existingListing = await this.prismaService.canonicalListing.findUnique({
-			where: {
-				id: id,
-				userId: userId,
-			},
-		});
-
-		return existingListing ? ListingsMapper.toDomain(existingListing) : null;
-	}
-
-	async getListingById(userId: string, id: string): Promise<Listing> {
-		const existingListing = await this.findListingById(userId, id);
-		if (!existingListing) {
-			this.throwNotFoundException();
-		}
-		return existingListing;
-	}
-
-	async getUserListings(userId: string, page: number, limit: number): Promise<Listing[]> {
-		const skip = (page - 1) * limit;
-		const listings = await this.prismaService.canonicalListing.findMany({
-			where: { userId },
-			orderBy: { createdAt: 'desc' },
-			skip: skip,
-			take: limit,
-		});
-		return listings.map(ListingsMapper.toDomain);
-	}
-
-	/************
-	 * Mutation *
-	 ************/
-
-	async createListing(userId: string, data: CreateListingData): Promise<Listing> {
-		const listing = await this.prismaService.canonicalListing.create({
-			data: {
-				userId: userId,
-				...data,
-			},
-		});
-
-		return ListingsMapper.toDomain(listing);
-	}
-
-	async updateListing(userId: string, id: string, data: UpdateListingData): Promise<Listing> {
-		// Filter out undefined values for partial updates
-		const updateData = Object.fromEntries(
-			Object.entries(data).filter(([_, value]) => value !== undefined)
-		);
-
-		try {
-			const listing = await this.prismaService.canonicalListing.update({
-				where: {
-					id: id,
-					userId: userId, // This ensures ownership check
-				},
-				data: updateData,
-			});
-			return ListingsMapper.toDomain(listing);
-		} catch (error) {
-			if (error.code === 'P2025') {
-				this.throwNotFoundException();
-			}
-			throw error;
-		}
-	}
-
-	/****************
-	 * AI Features *
-	 ****************/
-
-	async suggestContent(data: SuggestContentDto): Promise<ContentSuggestionDto> {
+	async suggestContent(input: ListingContentInput): Promise<ListingContentSuggestion> {
 		this.logger.log('Generating content suggestions for listing');
 
 		try {
-			// Get file URLs from file service
-			const imageUrls = await Promise.all(
-				data.imageKeys.map(key => this.filesService.getFileUrl(key))
+			// Convert image keys to base64 data URLs
+			// OpenAI cannot access localhost URLs, so we need base64
+			const imageDataUrls = await Promise.all(
+				input.imageKeys.map(key => this.filesService.getFileAsBase64(key))
 			);
+			
+			this.logger.log(`Processing ${imageDataUrls.length} images`);
+			this.logger.log(`Images converted to base64 data URLs`);
 
 			// Create vision model
 			const model = this.langChainFactory.createVisionModel({
@@ -110,7 +36,7 @@ export class ListingsService {
 			});
 
 			// Create JSON parser for structured output
-			const parser = this.langChainFactory.createJsonParser<ContentSuggestionDto>();
+			const parser = this.langChainFactory.createJsonParser<ListingContentSuggestion>();
 
 			// Create system message
 			const systemMessage = this.langChainFactory.createSystemMessage(
@@ -119,8 +45,8 @@ export class ListingsService {
 
 			// Create human message with images
 			const humanMessage = this.langChainFactory.createMultimodalMessage(
-				this.buildAnalysisPrompt(data),
-				imageUrls
+				this.buildAnalysisPrompt(input),
+				imageDataUrls
 			);
 
 			// Create and run the chain
@@ -147,7 +73,7 @@ Your goal is to analyze clothing images and generate content that:
 Always be honest about condition and any visible flaws.`;
 	}
 
-	private buildAnalysisPrompt(data: SuggestContentDto): string {
+	private buildAnalysisPrompt(data: ListingContentInput): string {
 		const parts = [
 			`Analyze these clothing item images and generate listing content.`,
 			``,
@@ -188,13 +114,5 @@ Always be honest about condition and any visible flaws.`;
 		);
 
 		return parts.join('\n');
-	}
-
-	/***********
-	 * Helpers *
-	 ***********/
-
-	private throwNotFoundException(): never {
-		throw new NotFoundException('Listing not found');
 	}
 }

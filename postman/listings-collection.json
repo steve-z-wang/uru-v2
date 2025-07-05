@@ -87,7 +87,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"listing\": {\n    \"imageKeys\": [\"image1.jpg\", \"image2.jpg\"],\n    \"title\": \"Vintage Denim Jacket\",\n    \"description\": \"Classic vintage denim jacket in great condition\",\n    \"category\": \"Outerwear\",\n    \"subcategory\": \"Jackets\",\n    \"size\": \"M\",\n    \"condition\": \"GOOD\",\n    \"material\": \"Denim\",\n    \"gender\": \"Unisex\",\n    \"brand\": \"Levi's\",\n    \"color\": \"Blue\",\n    \"price\": 75,\n    \"originalPrice\": 150,\n    \"tags\": [\"vintage\", \"denim\", \"jacket\"]\n  }\n}"
+          "raw": "{\n  \"imageKeys\": [\"image1.jpg\", \"image2.jpg\"],\n  \"title\": \"Vintage Denim Jacket\",\n  \"description\": \"Classic vintage denim jacket in great condition\",\n  \"category\": \"Outerwear\",\n  \"subcategory\": \"Jackets\",\n  \"size\": \"M\",\n  \"condition\": \"GOOD\",\n  \"material\": \"Denim\",\n  \"gender\": \"Unisex\",\n  \"brand\": \"Levi's\",\n  \"color\": \"Blue\",\n  \"price\": 75,\n  \"originalPrice\": 150,\n  \"tags\": [\"vintage\", \"denim\", \"jacket\"]\n}"
         },
         "url": {
           "raw": "{{BASE_URL}}/listings",
@@ -108,7 +108,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"listing\": {\n    \"imageKeys\": [\"image1.jpg\", \"image2.jpg\", \"image3.jpg\"],\n    \"title\": \"Vintage Denim Jacket - Updated\",\n    \"description\": \"Classic vintage denim jacket in excellent condition\",\n    \"price\": 65\n  }\n}"
+          "raw": "{\n  \"imageKeys\": [\"image1.jpg\", \"image2.jpg\", \"image3.jpg\"],\n  \"title\": \"Vintage Denim Jacket - Updated\",\n  \"description\": \"Classic vintage denim jacket in excellent condition\",\n  \"price\": 65\n}"
         },
         "url": {
           "raw": "{{BASE_URL}}/listings/:id",
@@ -125,20 +125,23 @@
       }
     },
     {
-      "name": "Generate AI Content",
+      "name": "Suggest Content",
       "request": {
-        "method": "PATCH",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"imageKeys\": [\"image1.jpg\", \"image2.jpg\"],\n  \"category\": \"Outerwear\",\n  \"brand\": \"Nike\",\n  \"size\": \"M\",\n  \"condition\": \"GOOD\",\n  \"material\": \"Cotton\",\n  \"gender\": \"Unisex\",\n  \"color\": \"Black\",\n  \"currentTitle\": \"Nike Jacket\",\n  \"currentDescription\": \"Black Nike jacket in good condition\"\n}"
+        },
         "url": {
-          "raw": "{{BASE_URL}}/listings/:id/ai-generate",
+          "raw": "{{BASE_URL}}/listings/suggest-content",
           "host": ["{{BASE_URL}}"],
-          "path": ["listings", ":id", "ai-generate"],
-          "variable": [
-            {
-              "key": "id",
-              "value": "{{LISTING_ID}}",
-              "description": "The ID of the listing"
-            }
-          ]
+          "path": ["listings", "suggest-content"]
         }
       }
     },

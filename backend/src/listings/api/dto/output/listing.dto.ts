@@ -1,4 +1,4 @@
-import { ListingCondition, ListingStatus } from '../../listings.model';
+import { ListingCondition, ListingStatus } from '../../../domain/listings.model';
 
 export class ListingDto {
 	id: string;

@@ -7,8 +7,8 @@ import {
 	Listing,
 	ListingCondition as DomainCondition,
 	ListingStatus as DomainStatus,
-} from './listings.model';
-import { ListingDto } from './dto/output/listing.dto';
+} from './domain/listings.model';
+import { ListingDto } from './api/dto/output/listing.dto';
 
 export class ListingsMapper {
 	static toDomain(data: PrismaListing): Listing {
@@ -42,5 +42,26 @@ export class ListingsMapper {
 			createdAt: props.createdAt?.getTime(),
 			updatedAt: props.updatedAt?.getTime(),
 		} as ListingDto;
+	}
+
+	static toPrisma(domainData: Listing): Partial<PrismaListing> {
+		const props = domainData.getProps();
+		return {
+			imageKeys: props.imageKeys,
+			title: props.title,
+			description: props.description,
+			category: props.category,
+			subcategory: props.subcategory,
+			size: props.size,
+			condition: props.condition as PrismaCondition,
+			material: props.material,
+			gender: props.gender,
+			brand: props.brand,
+			color: props.color,
+			price: props.price,
+			originalPrice: props.originalPrice,
+			tags: props.tags,
+			status: props.status as PrismaStatus,
+		};
 	}
 }

@@ -26,13 +26,14 @@ export class FilesService implements FilesServiceInterface {
   async uploadFile(input: UploadFileInput): Promise<File> {
     const { userId, file, category } = input;
     
-    // Generate unique file ID
+    // Generate unique file ID and get extension
     const fileId = this.generateFileId();
+    const path = await import('path');
+    const ext = path.extname(file.originalname);
     
-    // Construct file path: userId/category/filename
-    const timestamp = Date.now();
-    const safeFileName = `${timestamp}_${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const filePath = `${userId}/${category}/${safeFileName}`;
+    // Use UUID with extension as the filename
+    const fileName = `${fileId}${ext}`;
+    const filePath = `${userId}/${category}/${fileName}`;
 
     this.logger.log(`Uploading file to path: ${filePath}`);
 
@@ -41,19 +42,19 @@ export class FilesService implements FilesServiceInterface {
 
     // Store metadata in registry (in production, this would be in database)
     const metadata: FileMetadata = {
-      id: fileId,
+      id: fileName, // Use filename as ID
       path: filePath,
       userId,
       category,
       originalName: file.originalname,
       uploadedAt: uploadedFile.uploadedAt,
     };
-    this.fileRegistry.set(fileId, metadata);
+    this.fileRegistry.set(fileName, metadata);
 
-    this.logger.log(`File uploaded successfully with ID: ${fileId}`);
+    this.logger.log(`File uploaded successfully with ID: ${fileName}`);
 
     return {
-      id: fileId,
+      id: fileName, // Return the filename which can be used to find the file
     };
   }
 
@@ -100,6 +101,62 @@ export class FilesService implements FilesServiceInterface {
     // In a real implementation, this might validate the file exists
     // For now, just generate the URL based on the key
     return this.fileManager.getFileUrl(fileKey);
+  }
+
+  async getFileBuffer(fileId: string): Promise<Buffer> {
+    const metadata = this.fileRegistry.get(fileId);
+    
+    if (!metadata) {
+      throw new NotFoundException(`File ${fileId} not found`);
+    }
+
+    this.logger.log(`Getting file buffer: ${metadata.path}`);
+    return await this.fileManager.getFile(metadata.path);
+  }
+
+  async getFileAsBase64(fileId: string): Promise<string> {
+    const path = await import('path');
+    const metadata = this.fileRegistry.get(fileId);
+    
+    if (!metadata) {
+      // Fallback: try to find file by filename pattern
+      // Since fileId is now the filename (uuid.extension), we can search for it
+      const fs = await import('fs/promises');
+      
+      try {
+        // Search for the file in uploads directory
+        const { execSync } = await import('child_process');
+        const filePath = execSync(`find uploads -name "${fileId}" -type f | head -1`, { encoding: 'utf8' }).trim();
+        
+        if (filePath) {
+          const buffer = await fs.readFile(filePath);
+          const ext = path.extname(fileId).toLowerCase();
+          const mimeType = this.getMimeType(ext.slice(1));
+          return `data:${mimeType};base64,${buffer.toString('base64')}`;
+        }
+      } catch (error) {
+        this.logger.error(`Failed to find file ${fileId}:`, error);
+      }
+      
+      throw new NotFoundException(`File ${fileId} not found`);
+    }
+
+    const buffer = await this.fileManager.getFile(metadata.path);
+    const ext = path.extname(fileId).toLowerCase();
+    const mimeType = this.getMimeType(ext.slice(1));
+    
+    return `data:${mimeType};base64,${buffer.toString('base64')}`;
+  }
+
+  private getMimeType(extension?: string): string {
+    const mimeTypes: Record<string, string> = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+    };
+    return mimeTypes[extension || ''] || 'image/jpeg';
   }
 
   private generateFileId(): string {

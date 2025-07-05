@@ -26,8 +26,8 @@ import { CreateListingDto } from './dto/input/create-listing.dto';
 import { UpdateListingDto } from './dto/input/update-listing.dto';
 import { SuggestContentDto } from './dto/input/suggest-content.dto';
 import { ContentSuggestionDto } from './dto/output/content-suggestion.dto';
-import { ListingsService } from './listings.service';
-import { ListingsMapper } from './listings.mapper';
+import { ListingsService } from '../application/listings.service';
+import { ListingsMapper } from '../listings.mapper';
 
 @ApiTags('listings')
 @ApiBearerAuth()
@@ -210,30 +210,6 @@ export class ListingsController {
 		}
 	}
 
-	@UseGuards(JwtAuthGuard)
-	@Patch(':id/ai-generate')
-	@HttpCode(HttpStatus.OK)
-	@ApiOperation({
-		summary: 'Generate AI content',
-		description: 'Generate AI-powered content for the listing',
-	})
-	@ApiParam({ name: 'id', description: 'Listing ID' })
-	async generateAIContent(
-		@AuthUserToken() authUserToken: AuthUserToken,
-		@Param('id') id: string,
-	): Promise<void> {
-		this.logger.log(`Generating AI content for listing ${id} by user ${authUserToken.userId}`);
-		try {
-			// Implementation needed
-			throw new Error('Method not implemented');
-		} catch (error) {
-			this.logger.error(
-				`Failed to generate AI content for listing ${id} by user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
-	}
 
 	@UseGuards(JwtAuthGuard)
 	@Patch(':id/publish')
