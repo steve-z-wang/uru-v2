@@ -21,12 +21,12 @@ export class ListingsService {
 
 	async getListingById(userId: string, id: string): Promise<Listing> {
 		const listing = await this.listingRepository.findById(id);
-		
+
 		// Use domain method for ownership check
 		if (!listing || !listing.isOwnedBy(userId)) {
 			throw new NotFoundException('Listing not found');
 		}
-		
+
 		return listing;
 	}
 
@@ -52,7 +52,7 @@ export class ListingsService {
 	async updateListing(userId: string, id: string, data: UpdateListingData): Promise<Listing> {
 		// Get existing listing with ownership check
 		const listing = await this.getListingById(userId, id);
-		
+
 		// Update domain object
 		const props = listing.getProps();
 		const updatedListing = new Listing({

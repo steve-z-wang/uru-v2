@@ -1,20 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LangChainFactory } from 'src/langchain/langchain.factory';
+import OpenAI from 'openai';
 import { FilesService } from 'src/files/files.service';
-import { 
-	ListingAIService, 
-	ListingContentInput, 
-	ListingContentSuggestion 
+import {
+	ListingAIService,
+	ListingContentInput,
+	ListingContentSuggestion,
 } from '../application/ports/listing-ai.service';
 
 @Injectable()
 export class ListingAIServiceImpl implements ListingAIService {
 	private readonly logger = new Logger(ListingAIServiceImpl.name);
+	private openai: OpenAI;
 
-	constructor(
-		private langChainFactory: LangChainFactory,
-		private filesService: FilesService,
-	) {}
+	constructor(private filesService: FilesService) {
+		this.openai = new OpenAI({
+			apiKey: process.env.OPENAI_API_KEY,
+		});
+	}
 
 	async suggestContent(input: ListingContentInput): Promise<ListingContentSuggestion> {
 		this.logger.log('Generating content suggestions for listing');
@@ -23,35 +25,52 @@ export class ListingAIServiceImpl implements ListingAIService {
 			// Convert image keys to base64 data URLs
 			// OpenAI cannot access localhost URLs, so we need base64
 			const imageDataUrls = await Promise.all(
-				input.imageKeys.map(key => this.filesService.getFileAsBase64(key))
+				input.imageKeys.map((key) => this.filesService.getFileAsBase64(key)),
 			);
-			
+
 			this.logger.log(`Processing ${imageDataUrls.length} images`);
 			this.logger.log(`Images converted to base64 data URLs`);
 
-			// Create vision model
-			const model = this.langChainFactory.createVisionModel({
+			// Create image content for OpenAI
+			const imageContent = imageDataUrls.map((url) => ({
+				type: 'image_url' as const,
+				image_url: {
+					url,
+					detail: 'auto' as const,
+				},
+			}));
+
+			// Create the messages for OpenAI
+			const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+				{
+					role: 'system',
+					content: this.getSystemPrompt(),
+				},
+				{
+					role: 'user',
+					content: [
+						{
+							type: 'text',
+							text: this.buildAnalysisPrompt(input),
+						},
+						...imageContent,
+					],
+				},
+			];
+
+			// Call OpenAI API
+			const completion = await this.openai.chat.completions.create({
+				model: 'gpt-4o-mini',
+				messages,
 				temperature: 0.8,
-				maxTokens: 1500,
+				max_tokens: 1500,
+				response_format: { type: 'json_object' },
 			});
 
-			// Create JSON parser for structured output
-			const parser = this.langChainFactory.createJsonParser<ListingContentSuggestion>();
-
-			// Create system message
-			const systemMessage = this.langChainFactory.createSystemMessage(
-				this.getSystemPrompt()
-			);
-
-			// Create human message with images
-			const humanMessage = this.langChainFactory.createMultimodalMessage(
-				this.buildAnalysisPrompt(input),
-				imageDataUrls
-			);
-
-			// Create and run the chain
-			const chain = model.pipe(parser);
-			const result = await chain.invoke([systemMessage, humanMessage]);
+			// Parse the response
+			const result = JSON.parse(
+				completion.choices[0].message.content || '{}',
+			) as ListingContentSuggestion;
 
 			this.logger.log('Successfully generated content suggestions');
 			return result;
@@ -110,7 +129,7 @@ Always be honest about condition and any visible flaws.`;
 			`  "vibeTags": ["style", "aesthetic", "tags"],`,
 			`  "confidence": number between 0 and 1,`,
 			`  "insights": "Notable details, flaws, or unique features"`,
-			`}`
+			`}`,
 		);
 
 		return parts.join('\n');

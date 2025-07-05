@@ -11,20 +11,20 @@ import { AppConfigModule } from './config/config.module';
 import environmentConfig from './config/environment.config';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [environmentConfig],
-      envFilePath: '.env',
-    }),
-    AppConfigModule,
-    PrismaModule,
-    UsersModule,
-    AuthModule,
-    ListingsModule,
-    FilesModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			load: [environmentConfig],
+			envFilePath: '.env',
+		}),
+		AppConfigModule,
+		PrismaModule,
+		UsersModule,
+		AuthModule,
+		ListingsModule,
+		FilesModule,
+	],
+	controllers: [AppController],
+	providers: [AppService],
 })
 export class AppModule {}

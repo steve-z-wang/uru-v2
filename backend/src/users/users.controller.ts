@@ -1,4 +1,14 @@
-import { Controller, Get, Body, Patch, Delete, UseGuards, Logger, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Body,
+	Patch,
+	Delete,
+	UseGuards,
+	Logger,
+	HttpCode,
+	HttpStatus,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/input/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,7 +33,7 @@ export class UsersController {
 			this.logger.log(`Successfully retrieved profile for user ${authUserToken.userId}`);
 
 			return UsersMapper.toResponseDto(user);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to retrieve profile for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}
@@ -50,7 +60,7 @@ export class UsersController {
 			);
 			this.logger.log(`Successfully updated profile for user ${authUserToken.userId}`);
 			return UsersMapper.toResponseDto(updatedUser);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to update profile for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}
@@ -64,7 +74,7 @@ export class UsersController {
 		try {
 			await this.usersService.deleteUserById(authUserToken.userId);
 			this.logger.log(`Successfully deleted account for user ${authUserToken.userId}`);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to delete account for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}

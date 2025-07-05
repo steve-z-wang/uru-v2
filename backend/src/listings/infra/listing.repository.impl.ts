@@ -18,7 +18,7 @@ export class ListingRepositoryImpl implements ListingRepository {
 
 	async findByUserId(userId: string, page: number, limit: number): Promise<Listing[]> {
 		const skip = (page - 1) * limit;
-		
+
 		const data = await this.prisma.canonicalListing.findMany({
 			where: { userId },
 			orderBy: { createdAt: 'desc' },
@@ -26,13 +26,13 @@ export class ListingRepositoryImpl implements ListingRepository {
 			take: limit,
 		});
 
-		return data.map(ListingsMapper.toDomain);
+		return data.map((item) => ListingsMapper.toDomain(item));
 	}
 
 	async save(listing: Listing): Promise<Listing> {
 		const props = listing.getProps();
 		const data = ListingsMapper.toPrisma(listing);
-		
+
 		if (props.id) {
 			// Update existing listing
 			const updated = await this.prisma.canonicalListing.update({

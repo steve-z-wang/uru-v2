@@ -1,16 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './users.model';
-import { User as PrismaUser } from "generated/prisma";
 import { UsersMapper } from './users.mapper';
 
 @Injectable()
 export class UsersService {
 	constructor(private prismaService: PrismaService) {}
 
-  /*********
-   * Query * 
-   *********/
+	/*********
+	 * Query *
+	 *********/
 
 	async findUserById(id: string): Promise<User> {
 		const user = await this.prismaService.user.findUnique({
@@ -21,12 +20,12 @@ export class UsersService {
 			throw new NotFoundException('User not found');
 		}
 
-		return UsersMapper.toDomain(user)
+		return UsersMapper.toDomain(user);
 	}
 
-  /************
-   * Mutation * 
-   ************/
+	/************
+	 * Mutation *
+	 ************/
 
 	async createUser(userData: {
 		email: string;
@@ -34,7 +33,7 @@ export class UsersService {
 		lastName?: string | null;
 	}): Promise<User> {
 		const user = await this.prismaService.user.create({
-			data: userData
+			data: userData,
 		});
 
 		return UsersMapper.toDomain(user);
@@ -47,12 +46,12 @@ export class UsersService {
 				data: {
 					email: user.email,
 					firstName: user.firstName,
-					lastName: user.lastName
-				}
+					lastName: user.lastName,
+				},
 			});
 
 			return UsersMapper.toDomain(updatedUser);
-		} catch (error) {
+		} catch (error: any) {
 			if (error.code === 'P2025') {
 				throw new NotFoundException('User not found');
 			}
@@ -63,14 +62,13 @@ export class UsersService {
 	async deleteUserById(id: string): Promise<void> {
 		try {
 			await this.prismaService.user.delete({
-				where: { id }
+				where: { id },
 			});
-		} catch (error) {
+		} catch (error: any) {
 			if (error.code === 'P2025') {
 				throw new NotFoundException('User not found');
 			}
 			throw error;
 		}
 	}
-
 }

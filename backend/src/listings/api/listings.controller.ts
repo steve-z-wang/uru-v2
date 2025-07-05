@@ -58,7 +58,7 @@ export class ListingsController {
 			const listing = await this.listingsService.getListingById(authUserToken.userId, id);
 			this.logger.log(`Successfully retrieved listing ${id} for user ${authUserToken.userId}`);
 			return ListingsMapper.toDto(listing);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to retrieve listing ${id} for user ${authUserToken.userId}`,
 				error.stack,
@@ -109,7 +109,7 @@ export class ListingsController {
 				`Successfully retrieved ${listings.length} listings for user ${authUserToken.userId}`,
 			);
 			return listings.map((listing) => ListingsMapper.toDto(listing));
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to retrieve listings for user ${authUserToken.userId}`,
 				error.stack,
@@ -143,7 +143,7 @@ export class ListingsController {
 				`Successfully created listing ${listing.getProps().id} for user ${authUserToken.userId}`,
 			);
 			return ListingsMapper.toDto(listing);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to create listing for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}
@@ -154,7 +154,8 @@ export class ListingsController {
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary: 'Generate AI content suggestions',
-		description: 'Generate AI-powered content suggestions for a listing based on images and provided information',
+		description:
+			'Generate AI-powered content suggestions for a listing based on images and provided information',
 	})
 	@ApiResponse({
 		status: 200,
@@ -168,9 +169,11 @@ export class ListingsController {
 		this.logger.log(`Generating content suggestions for user ${authUserToken.userId}`);
 		try {
 			const suggestions = await this.listingsService.suggestContent(suggestContentDto);
-			this.logger.log(`Successfully generated content suggestions for user ${authUserToken.userId}`);
+			this.logger.log(
+				`Successfully generated content suggestions for user ${authUserToken.userId}`,
+			);
 			return suggestions;
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to generate content suggestions for user ${authUserToken.userId}`,
 				error.stack,
@@ -201,7 +204,7 @@ export class ListingsController {
 			);
 			this.logger.log(`Successfully updated listing ${id} for user ${authUserToken.userId}`);
 			return ListingsMapper.toDto(listing);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to update listing ${id} for user ${authUserToken.userId}`,
 				error.stack,
@@ -209,7 +212,6 @@ export class ListingsController {
 			throw error;
 		}
 	}
-
 
 	@UseGuards(JwtAuthGuard)
 	@Patch(':id/publish')
@@ -219,15 +221,12 @@ export class ListingsController {
 		description: 'Publish a draft listing to make it publicly visible',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	async publishListing(
-		@AuthUserToken() authUserToken: AuthUserToken,
-		@Param('id') id: string,
-	): Promise<void> {
+	publishListing(@AuthUserToken() authUserToken: AuthUserToken, @Param('id') id: string): void {
 		this.logger.log(`Publishing listing ${id} for user ${authUserToken.userId}`);
 		try {
 			// Implementation needed
 			throw new Error('Method not implemented');
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to publish listing ${id} for user ${authUserToken.userId}`,
 				error.stack,
@@ -244,15 +243,12 @@ export class ListingsController {
 		description: 'Archive a published listing to hide it from public view',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	async archiveListing(
-		@AuthUserToken() authUserToken: AuthUserToken,
-		@Param('id') id: string,
-	): Promise<void> {
+	archiveListing(@AuthUserToken() authUserToken: AuthUserToken, @Param('id') id: string): void {
 		this.logger.log(`Archiving listing ${id} for user ${authUserToken.userId}`);
 		try {
 			// Implementation needed
 			throw new Error('Method not implemented');
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(
 				`Failed to archive listing ${id} for user ${authUserToken.userId}`,
 				error.stack,

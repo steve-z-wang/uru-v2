@@ -5,15 +5,15 @@ import { AppConfigService } from '../../config/config.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(private appConfig: AppConfigService) {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: appConfig.jwtSecret,
-        });
-    }
+	constructor(private appConfig: AppConfigService) {
+		super({
+			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			ignoreExpiration: false,
+			secretOrKey: appConfig.jwtSecret,
+		});
+	}
 
-    async validate(payload: any) {
-        return payload
-    }
+	validate(payload: { sub: string; email: string }) {
+		return payload;
+	}
 }

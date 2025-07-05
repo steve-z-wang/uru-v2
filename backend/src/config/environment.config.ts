@@ -34,7 +34,9 @@ export default registerAs('environment', (): EnvironmentConfig => {
 	// Validate STAGE value
 	const stage = process.env.STAGE as Stage;
 	if (!Object.values(Stage).includes(stage)) {
-		throw new Error(`Invalid STAGE value: ${stage}. Must be one of: ${Object.values(Stage).join(', ')}`);
+		throw new Error(
+			`Invalid STAGE value: ${stage}. Must be one of: ${Object.values(Stage).join(', ')}`,
+		);
 	}
 
 	return {

@@ -67,16 +67,20 @@ export class FilesController {
 		@UploadedFile() file: Express.Multer.File,
 		@Body() uploadFileDto: UploadFileDto,
 	): Promise<FileDto> {
-		this.logger.log(`User ${authUserToken.userId} uploading ${uploadFileDto.category} file: ${file.originalname}`);
+		this.logger.log(
+			`User ${authUserToken.userId} uploading ${uploadFileDto.category} file: ${file.originalname}`,
+		);
 		try {
 			const uploadedFile = await this.filesService.uploadFile({
 				userId: authUserToken.userId,
 				file,
 				category: uploadFileDto.category,
 			});
-			this.logger.log(`Successfully uploaded file ${uploadedFile.id} for user ${authUserToken.userId}`);
+			this.logger.log(
+				`Successfully uploaded file ${uploadedFile.id} for user ${authUserToken.userId}`,
+			);
 			return FilesMapper.toDto(uploadedFile);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to upload file for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}
@@ -94,7 +98,7 @@ export class FilesController {
 		try {
 			const file = await this.filesService.getFile(id, authUserToken.userId);
 			res.send(file);
-		} catch (error) {
+		} catch (error: Error) {
 			this.logger.error(`Failed to get file ${id} for user ${authUserToken.userId}`, error.stack);
 			throw error;
 		}
@@ -112,8 +116,11 @@ export class FilesController {
 		try {
 			await this.filesService.deleteFile(id, authUserToken.userId);
 			this.logger.log(`Successfully deleted file ${id} for user ${authUserToken.userId}`);
-		} catch (error) {
-			this.logger.error(`Failed to delete file ${id} for user ${authUserToken.userId}`, error.stack);
+		} catch (error: Error) {
+			this.logger.error(
+				`Failed to delete file ${id} for user ${authUserToken.userId}`,
+				error.stack,
+			);
 			throw error;
 		}
 	}

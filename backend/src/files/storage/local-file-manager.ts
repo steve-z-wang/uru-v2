@@ -6,75 +6,72 @@ import { AppConfigService } from '../../config/config.service';
 
 @Injectable()
 export class LocalFileManager implements FileManagerInterface {
-  private readonly logger = new Logger(LocalFileManager.name);
-  private readonly baseStoragePath: string;
+	private readonly logger = new Logger(LocalFileManager.name);
+	private readonly baseStoragePath: string;
 
-  constructor(private readonly appConfig: AppConfigService) {
-    this.baseStoragePath = path.join(process.cwd(), 'uploads');
-    this.ensureStorageDirectory();
-  }
+	constructor(private readonly appConfig: AppConfigService) {
+		this.baseStoragePath = path.join(process.cwd(), 'uploads');
+		void this.ensureStorageDirectory();
+	}
 
-  private async ensureStorageDirectory(): Promise<void> {
-    try {
-      await fs.access(this.baseStoragePath);
-    } catch {
-      await fs.mkdir(this.baseStoragePath, { recursive: true });
-      this.logger.log(`Created storage directory at: ${this.baseStoragePath}`);
-    }
-  }
+	private async ensureStorageDirectory(): Promise<void> {
+		try {
+			await fs.access(this.baseStoragePath);
+		} catch {
+			await fs.mkdir(this.baseStoragePath, { recursive: true });
+			this.logger.log(`Created storage directory at: ${this.baseStoragePath}`);
+		}
+	}
 
-  async uploadFile(
-    file: Express.Multer.File,
-    filePath: string,
-  ): Promise<UploadedFileMetadata> {
-    const fullPath = path.join(this.baseStoragePath, filePath);
-    const directory = path.dirname(fullPath);
+	async uploadFile(file: Express.Multer.File, filePath: string): Promise<UploadedFileMetadata> {
+		const fullPath = path.join(this.baseStoragePath, filePath);
+		const directory = path.dirname(fullPath);
 
-    await fs.mkdir(directory, { recursive: true });
-    await fs.writeFile(fullPath, file.buffer);
+		await fs.mkdir(directory, { recursive: true });
+		await fs.writeFile(fullPath, file.buffer);
 
-    this.logger.log(`File uploaded to: ${fullPath}`);
+		this.logger.log(`File uploaded to: ${fullPath}`);
 
-    return {
-      originalName: file.originalname,
-      mimeType: file.mimetype,
-      size: file.size,
-      path: filePath,
-      uploadedAt: new Date(),
-    };
-  }
+		return {
+			originalName: file.originalname,
+			mimeType: file.mimetype,
+			size: file.size,
+			path: filePath,
+			uploadedAt: new Date(),
+		};
+	}
 
-  async deleteFile(filePath: string): Promise<void> {
-    const fullPath = path.join(this.baseStoragePath, filePath);
-    await fs.unlink(fullPath);
-    this.logger.log(`File deleted: ${fullPath}`);
-  }
+	async deleteFile(filePath: string): Promise<void> {
+		const fullPath = path.join(this.baseStoragePath, filePath);
+		await fs.unlink(fullPath);
+		this.logger.log(`File deleted: ${fullPath}`);
+	}
 
-  async getFile(filePath: string): Promise<Buffer> {
-    const fullPath = path.join(this.baseStoragePath, filePath);
-    return await fs.readFile(fullPath);
-  }
+	async getFile(filePath: string): Promise<Buffer> {
+		const fullPath = path.join(this.baseStoragePath, filePath);
+		return await fs.readFile(fullPath);
+	}
 
-  async fileExists(filePath: string): Promise<boolean> {
-    const fullPath = path.join(this.baseStoragePath, filePath);
-    try {
-      await fs.access(fullPath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
+	async fileExists(filePath: string): Promise<boolean> {
+		const fullPath = path.join(this.baseStoragePath, filePath);
+		try {
+			await fs.access(fullPath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
 
-  getFileUrl(filePath: string): string {
-    if (this.appConfig.isProduction) {
-      // Production: Return S3 URL
-      const bucketName = this.appConfig.getS3BucketName();
-      const region = this.appConfig.getS3Region();
-      return `https://${bucketName}.s3.${region}.amazonaws.com/${filePath}`;
-    } else {
-      // Development/Staging: Return local server URL
-      const port = this.appConfig.port;
-      return `http://localhost:${port}/files/${encodeURIComponent(filePath)}`;
-    }
-  }
+	getFileUrl(filePath: string): string {
+		if (this.appConfig.isProduction) {
+			// Production: Return S3 URL
+			const bucketName = this.appConfig.getS3BucketName();
+			const region = this.appConfig.getS3Region();
+			return `https://${bucketName}.s3.${region}.amazonaws.com/${filePath}`;
+		} else {
+			// Development/Staging: Return local server URL
+			const port = this.appConfig.port;
+			return `http://localhost:${port}/files/${encodeURIComponent(filePath)}`;
+		}
+	}
 }

@@ -5,116 +5,116 @@ import { ListingCondition } from '../../../domain/listings.model';
 export class CreateListingDto {
 	@IsArray()
 	@IsString({ each: true })
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'S3 image keys for the listing',
-		example: ['image1.jpg', 'image2.jpg']
+		example: ['image1.jpg', 'image2.jpg'],
 	})
 	imageKeys: string[];
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Title of the listing',
-		example: 'Vintage Levi\'s Denim Jacket'
+		example: "Vintage Levi's Denim Jacket",
 	})
 	title?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Description of the item',
-		example: 'Classic vintage denim jacket in excellent condition'
+		example: 'Classic vintage denim jacket in excellent condition',
 	})
 	description?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Item category',
-		example: 'Outerwear'
+		example: 'Outerwear',
 	})
 	category?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Item subcategory',
-		example: 'Jackets'
+		example: 'Jackets',
 	})
 	subcategory?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Size of the item',
-		example: 'M'
+		example: 'M',
 	})
 	size?: string;
 
 	@IsOptional()
 	@IsEnum(ListingCondition)
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Condition of the item',
-		enum: ListingCondition
+		enum: ListingCondition,
 	})
 	condition?: ListingCondition;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Material of the item',
-		example: 'denim'
+		example: 'denim',
 	})
 	material?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Gender category',
-		example: 'unisex'
+		example: 'unisex',
 	})
 	gender?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Brand name',
-		example: 'Levi\'s'
+		example: "Levi's",
 	})
 	brand?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Color of the item',
-		example: 'blue'
+		example: 'blue',
 	})
 	color?: string;
 
 	@IsOptional()
 	@IsNumber()
 	@Min(0)
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Selling price',
-		example: 45.99
+		example: 45.99,
 	})
 	price?: number;
 
 	@IsOptional()
 	@IsNumber()
 	@Min(0)
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Original retail price',
-		example: 89.99
+		example: 89.99,
 	})
 	originalPrice?: number;
 
 	@IsOptional()
 	@IsArray()
 	@IsString({ each: true })
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Tags for the item',
-		example: ['vintage', 'y2k', 'oversized']
+		example: ['vintage', 'y2k', 'oversized'],
 	})
 	tags?: string[];
 }

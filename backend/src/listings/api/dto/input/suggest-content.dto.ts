@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsNumber, IsArray, IsEnum, Min, ArrayMinSize } from 'class-validator';
+import {
+	IsString,
+	IsOptional,
+	IsNumber,
+	IsArray,
+	IsEnum,
+	Min,
+	ArrayMinSize,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ListingCondition } from '../../../domain/listings.model';
 
@@ -6,113 +14,113 @@ export class SuggestContentDto {
 	@IsArray()
 	@ArrayMinSize(1)
 	@IsString({ each: true })
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'S3 image keys for AI analysis (required)',
-		example: ['image1.jpg', 'image2.jpg']
+		example: ['image1.jpg', 'image2.jpg'],
 	})
 	imageKeys: string[];
 
 	@IsString()
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'Item category (required for targeted suggestions)',
-		example: 'Outerwear'
+		example: 'Outerwear',
 	})
 	category: string;
 
 	@IsString()
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'Size of the item (required)',
-		example: 'M'
+		example: 'M',
 	})
 	size: string;
 
 	@IsEnum(ListingCondition)
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'Condition of the item (required)',
 		enum: ListingCondition,
-		example: ListingCondition.GOOD
+		example: ListingCondition.GOOD,
 	})
 	condition: ListingCondition;
 
 	@IsString()
-	@ApiProperty({ 
+	@ApiProperty({
 		description: 'Brand name (required)',
-		example: 'Levi\'s'
+		example: "Levi's",
 	})
 	brand: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Title of the listing',
-		example: 'Vintage Levi\'s Denim Jacket'
+		example: "Vintage Levi's Denim Jacket",
 	})
 	title?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Description of the item',
-		example: 'Classic vintage denim jacket in excellent condition'
+		example: 'Classic vintage denim jacket in excellent condition',
 	})
 	description?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Item subcategory',
-		example: 'Jackets'
+		example: 'Jackets',
 	})
 	subcategory?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Material of the item',
-		example: 'denim'
+		example: 'denim',
 	})
 	material?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Gender category',
-		example: 'unisex'
+		example: 'unisex',
 	})
 	gender?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Color of the item',
-		example: 'blue'
+		example: 'blue',
 	})
 	color?: string;
 
 	@IsOptional()
 	@IsNumber()
 	@Min(0)
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Selling price',
-		example: 45.99
+		example: 45.99,
 	})
 	price?: number;
 
 	@IsOptional()
 	@IsNumber()
 	@Min(0)
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Original retail price',
-		example: 89.99
+		example: 89.99,
 	})
 	originalPrice?: number;
 
 	@IsOptional()
 	@IsArray()
 	@IsString({ each: true })
-	@ApiPropertyOptional({ 
+	@ApiPropertyOptional({
 		description: 'Tags for the item',
-		example: ['vintage', 'y2k', 'oversized']
+		example: ['vintage', 'y2k', 'oversized'],
 	})
 	tags?: string[];
 }

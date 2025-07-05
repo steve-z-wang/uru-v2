@@ -10,24 +10,24 @@ import { AppConfigService } from '../config/config.service';
 import { AppConfigModule } from '../config/config.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    UsersModule,
-    PassportModule,
-    AppConfigModule,
-    JwtModule.registerAsync({
-      imports: [AppConfigModule],
-      useFactory: async (appConfig: AppConfigService) => {
-        return {
-          secret: appConfig.jwtSecret,
-          signOptions: { expiresIn: appConfig.jwtExpiresIn },
-        };
-      },
-      inject: [AppConfigService],
-    }),
-  ],
-  providers: [AuthService, JwtStrategy],
-  controllers: [AuthController],
-  exports: [AuthService],
+	imports: [
+		PrismaModule,
+		UsersModule,
+		PassportModule,
+		AppConfigModule,
+		JwtModule.registerAsync({
+			imports: [AppConfigModule],
+			useFactory: (appConfig: AppConfigService) => {
+				return {
+					secret: appConfig.jwtSecret,
+					signOptions: { expiresIn: appConfig.jwtExpiresIn },
+				};
+			},
+			inject: [AppConfigService],
+		}),
+	],
+	providers: [AuthService, JwtStrategy],
+	controllers: [AuthController],
+	exports: [AuthService],
 })
 export class AuthModule {}

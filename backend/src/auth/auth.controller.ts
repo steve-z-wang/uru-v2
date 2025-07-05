@@ -18,8 +18,8 @@ export class AuthController {
 			const accessToken = await this.authService.register(request.email, request.password);
 			return {
 				accessToken,
-			} as AuthResponseDto; 
-		} catch (error) {
+			} as AuthResponseDto;
+		} catch (error: Error) {
 			this.logger.error(`Registration failed for email: ${request.email}`, error.stack);
 			throw error;
 		}
@@ -27,16 +27,16 @@ export class AuthController {
 
 	@Post('login')
 	async login(@Body() request: LoginRequestDto): Promise<AuthResponseDto> {
-		this.logger.log(`Login attempt for account: ${request.email}`); 
+		this.logger.log(`Login attempt for account: ${request.email}`);
 
 		try {
-			const accessToken = await this.authService.login(request.email, request.password); 
+			const accessToken = await this.authService.login(request.email, request.password);
 			return {
-				accessToken
-			} as AuthResponseDto; 
-		} catch (error) {
-			this.logger.error(`Login failed for email: ${request.email}`, error.stack); 
-			throw error
+				accessToken,
+			} as AuthResponseDto;
+		} catch (error: Error) {
+			this.logger.error(`Login failed for email: ${request.email}`, error.stack);
+			throw error;
 		}
 	}
 }

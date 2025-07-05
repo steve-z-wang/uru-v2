@@ -5,15 +5,15 @@ import { LocalFileManager } from './storage/local-file-manager';
 import { AppConfigModule } from '../config/config.module';
 
 @Module({
-  imports: [AppConfigModule],
-  controllers: [FilesController],
-  providers: [
-    FilesService,
-    {
-      provide: 'FileManagerInterface',
-      useClass: LocalFileManager,
-    },
-  ],
-  exports: [FilesService],
+	imports: [AppConfigModule],
+	controllers: [FilesController],
+	providers: [
+		FilesService,
+		{
+			provide: 'FileManagerInterface',
+			useClass: LocalFileManager,
+		},
+	],
+	exports: [FilesService],
 })
 export class FilesModule {}
