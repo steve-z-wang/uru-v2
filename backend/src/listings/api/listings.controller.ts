@@ -1,7 +1,6 @@
 import {
 	Body,
 	Controller,
-	Logger,
 	Patch,
 	Post,
 	UseGuards,
@@ -33,8 +32,6 @@ import { ListingsMapper } from '../listings.mapper';
 @ApiBearerAuth()
 @Controller('listings')
 export class ListingsController {
-	private readonly logger = new Logger(ListingsController.name);
-
 	constructor(private readonly listingsService: ListingsService) {}
 
 	/*********
@@ -53,18 +50,8 @@ export class ListingsController {
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Param('id') id: string,
 	): Promise<ListingDto> {
-		this.logger.log(`Getting listing ${id} for user ${authUserToken.userId}`);
-		try {
-			const listing = await this.listingsService.getListingById(authUserToken.userId, id);
-			this.logger.log(`Successfully retrieved listing ${id} for user ${authUserToken.userId}`);
-			return ListingsMapper.toDto(listing);
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to retrieve listing ${id} for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+		const listing = await this.listingsService.getListingById(authUserToken.userId, id);
+		return ListingsMapper.toDto(listing);
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -96,26 +83,12 @@ export class ListingsController {
 		const pageNumber = parseInt(page || '1', 10);
 		const limitNumber = parseInt(limit || '10', 10);
 
-		this.logger.log(
-			`Getting listings for user ${authUserToken.userId} - page: ${pageNumber}, limit: ${limitNumber}`,
+		const listings = await this.listingsService.getUserListings(
+			authUserToken.userId,
+			pageNumber,
+			limitNumber,
 		);
-		try {
-			const listings = await this.listingsService.getUserListings(
-				authUserToken.userId,
-				pageNumber,
-				limitNumber,
-			);
-			this.logger.log(
-				`Successfully retrieved ${listings.length} listings for user ${authUserToken.userId}`,
-			);
-			return listings.map((listing) => ListingsMapper.toDto(listing));
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to retrieve listings for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+		return listings.map((listing) => ListingsMapper.toDto(listing));
 	}
 
 	/************
@@ -133,20 +106,11 @@ export class ListingsController {
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Body() createListingDto: CreateListingDto,
 	): Promise<ListingDto> {
-		this.logger.log(`Creating new listing for user ${authUserToken.userId}`);
-		try {
-			const listing = await this.listingsService.createListing(
-				authUserToken.userId,
-				createListingDto,
-			);
-			this.logger.log(
-				`Successfully created listing ${listing.getProps().id} for user ${authUserToken.userId}`,
-			);
-			return ListingsMapper.toDto(listing);
-		} catch (error: Error) {
-			this.logger.error(`Failed to create listing for user ${authUserToken.userId}`, error.stack);
-			throw error;
-		}
+		const listing = await this.listingsService.createListing(
+			authUserToken.userId,
+			createListingDto,
+		);
+		return ListingsMapper.toDto(listing);
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -166,20 +130,8 @@ export class ListingsController {
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Body() suggestContentDto: SuggestContentDto,
 	): Promise<ContentSuggestionDto> {
-		this.logger.log(`Generating content suggestions for user ${authUserToken.userId}`);
-		try {
-			const suggestions = await this.listingsService.suggestContent(suggestContentDto);
-			this.logger.log(
-				`Successfully generated content suggestions for user ${authUserToken.userId}`,
-			);
-			return suggestions;
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to generate content suggestions for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+		const suggestions = await this.listingsService.suggestContent(suggestContentDto);
+		return suggestions;
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -195,22 +147,12 @@ export class ListingsController {
 		@Param('id') id: string,
 		@Body() updateListingDto: UpdateListingDto,
 	): Promise<ListingDto> {
-		this.logger.log(`Updating listing ${id} for user ${authUserToken.userId}`);
-		try {
-			const listing = await this.listingsService.updateListing(
-				authUserToken.userId,
-				id,
-				updateListingDto,
-			);
-			this.logger.log(`Successfully updated listing ${id} for user ${authUserToken.userId}`);
-			return ListingsMapper.toDto(listing);
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to update listing ${id} for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+		const listing = await this.listingsService.updateListing(
+			authUserToken.userId,
+			id,
+			updateListingDto,
+		);
+		return ListingsMapper.toDto(listing);
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -221,18 +163,10 @@ export class ListingsController {
 		description: 'Publish a draft listing to make it publicly visible',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	publishListing(@AuthUserToken() authUserToken: AuthUserToken, @Param('id') id: string): void {
-		this.logger.log(`Publishing listing ${id} for user ${authUserToken.userId}`);
-		try {
-			// Implementation needed
-			throw new Error('Method not implemented');
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to publish listing ${id} for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	publishListing(@AuthUserToken() _authUserToken: AuthUserToken, @Param('id') _id: string): void {
+		// Implementation needed
+		throw new Error('Method not implemented');
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -243,17 +177,9 @@ export class ListingsController {
 		description: 'Archive a published listing to hide it from public view',
 	})
 	@ApiParam({ name: 'id', description: 'Listing ID' })
-	archiveListing(@AuthUserToken() authUserToken: AuthUserToken, @Param('id') id: string): void {
-		this.logger.log(`Archiving listing ${id} for user ${authUserToken.userId}`);
-		try {
-			// Implementation needed
-			throw new Error('Method not implemented');
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to archive listing ${id} for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	archiveListing(@AuthUserToken() _authUserToken: AuthUserToken, @Param('id') _id: string): void {
+		// Implementation needed
+		throw new Error('Method not implemented');
 	}
 }

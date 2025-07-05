@@ -51,8 +51,8 @@ export class UsersService {
 			});
 
 			return UsersMapper.toDomain(updatedUser);
-		} catch (error: any) {
-			if (error.code === 'P2025') {
+		} catch (error: unknown) {
+			if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
 				throw new NotFoundException('User not found');
 			}
 			throw error;
@@ -64,8 +64,8 @@ export class UsersService {
 			await this.prismaService.user.delete({
 				where: { id },
 			});
-		} catch (error: any) {
-			if (error.code === 'P2025') {
+		} catch (error: unknown) {
+			if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
 				throw new NotFoundException('User not found');
 			}
 			throw error;

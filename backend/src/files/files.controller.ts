@@ -6,7 +6,6 @@ import {
 	UseInterceptors,
 	UploadedFile,
 	UseGuards,
-	Logger,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -35,8 +34,6 @@ import { FilesMapper } from './files.mapper';
 @Controller('files')
 @UseGuards(JwtAuthGuard)
 export class FilesController {
-	private readonly logger = new Logger(FilesController.name);
-
 	constructor(private readonly filesService: FilesService) {}
 
 	@Post()
@@ -67,23 +64,12 @@ export class FilesController {
 		@UploadedFile() file: Express.Multer.File,
 		@Body() uploadFileDto: UploadFileDto,
 	): Promise<FileDto> {
-		this.logger.log(
-			`User ${authUserToken.userId} uploading ${uploadFileDto.category} file: ${file.originalname}`,
-		);
-		try {
-			const uploadedFile = await this.filesService.uploadFile({
-				userId: authUserToken.userId,
-				file,
-				category: uploadFileDto.category,
-			});
-			this.logger.log(
-				`Successfully uploaded file ${uploadedFile.id} for user ${authUserToken.userId}`,
-			);
-			return FilesMapper.toDto(uploadedFile);
-		} catch (error: Error) {
-			this.logger.error(`Failed to upload file for user ${authUserToken.userId}`, error.stack);
-			throw error;
-		}
+		const uploadedFile = await this.filesService.uploadFile({
+			userId: authUserToken.userId,
+			file,
+			category: uploadFileDto.category,
+		});
+		return FilesMapper.toDto(uploadedFile);
 	}
 
 	@Get(':id')
@@ -94,14 +80,8 @@ export class FilesController {
 		@AuthUserToken() authUserToken: AuthUserToken,
 		@Res() res: Response,
 	): Promise<void> {
-		this.logger.log(`User ${authUserToken.userId} retrieving file: ${id}`);
-		try {
-			const file = await this.filesService.getFile(id, authUserToken.userId);
-			res.send(file);
-		} catch (error: Error) {
-			this.logger.error(`Failed to get file ${id} for user ${authUserToken.userId}`, error.stack);
-			throw error;
-		}
+		const file = await this.filesService.getFile(id, authUserToken.userId);
+		res.send(file);
 	}
 
 	@Delete(':id')
@@ -112,16 +92,6 @@ export class FilesController {
 		@Param('id') id: string,
 		@AuthUserToken() authUserToken: AuthUserToken,
 	): Promise<void> {
-		this.logger.log(`User ${authUserToken.userId} deleting file: ${id}`);
-		try {
-			await this.filesService.deleteFile(id, authUserToken.userId);
-			this.logger.log(`Successfully deleted file ${id} for user ${authUserToken.userId}`);
-		} catch (error: Error) {
-			this.logger.error(
-				`Failed to delete file ${id} for user ${authUserToken.userId}`,
-				error.stack,
-			);
-			throw error;
-		}
+		await this.filesService.deleteFile(id, authUserToken.userId);
 	}
 }

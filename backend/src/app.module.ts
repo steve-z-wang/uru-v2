@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -8,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ListingsModule } from './listings/listings.module';
 import { FilesModule } from './files/files.module';
 import { AppConfigModule } from './config/config.module';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import environmentConfig from './config/environment.config';
 
 @Module({
@@ -25,6 +27,12 @@ import environmentConfig from './config/environment.config';
 		FilesModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [
+		AppService,
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: LoggingInterceptor,
+		},
+	],
 })
 export class AppModule {}
